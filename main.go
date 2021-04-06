@@ -1,12 +1,14 @@
 package main
 
 import (
-	"fmt"
+	"bytes"
 	"html/template"
 	"log"
+	"math"
 	"net/http" // Provides HTTP client and server implementation for use in the app
 	"net/url"
 	"os" // Allows operating system functionalities
+	"strconv"
 	"time"
 
 	"github.com/bilaalukis/newsApp-with-golang.git/news"
@@ -15,10 +17,23 @@ import (
 
 var tpl = template.Must(template.ParseFiles("index.html"))  // Package level variable. Parses the index.html file as a template
 
+type Search struct {
+	Query		string
+	NextPage	int
+	TotalPages	int
+	Results		*news.Results
+}
 
 // w represents the "res" and r is "req"
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	tpl.Execute(w, nil)
+	buf := &bytes.Buffer{}
+	err := tpl.Execute(buf, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return 
+	}
+
+	buf.WriteTo(w)
 }
 
 // function to deal with users' searches
@@ -43,8 +58,28 @@ func searchHandler(newsapi *news.Client) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return 
 		}
-	
-		fmt.Println("%+v", results)
+
+		nextPage, err := strconv.Atoi(page)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		
+		search := &Search {
+			Query: 		searchQuery,
+			NextPage: nextPage,
+			TotalPages: int(math.Ceil(float64(results.TotalResults) / float64(newsapi.PageSize))),
+			Results: results,
+		}
+
+		buf := &bytes.Buffer{}
+		err = tpl.Execute(buf, search)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		buf.WriteTo(w)
 	} 
 }
 

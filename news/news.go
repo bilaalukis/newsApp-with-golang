@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// Article Struct: Structure for each article within the result data
 type Article struct {
 	Source struct {
 		ID   interface{} `json:"id"`
@@ -23,9 +24,10 @@ type Article struct {
 	Content     string    `json:"content"`
 }
 
+// Results Struct for data received from the news api get request
 type Results struct {
 	Status		string		`json:"status"`
-	TotalResult	int			`json:"totalResults"`
+	TotalResults	int			`json:"totalResults"`
 	Articles	[]Article	`json:"articles"`
 }
 
@@ -36,14 +38,6 @@ type Client struct {
 	PageSize int  		//Max number of results to return per page
 }
 
-// Creates and returns a new Client
-func NewClient(httpClient *http.Client, key string, pageSize int) *Client {
-	if pageSize > 100 {
-		pageSize = 100
-	}
-
-	return &Client{httpClient, key, pageSize}
-}
 
 func (c *Client) FetchEverything(query, page string) (*Results, error) {
 	endpoint := fmt.Sprintf(
@@ -75,4 +69,13 @@ func (c *Client) FetchEverything(query, page string) (*Results, error) {
 	// If all is well, decode into Result struct using json.Unmarshall
 	result := &Results{}
 	return result, json.Unmarshal(body, result)
+}
+
+// NewClient: Creates and returns a new Client
+func NewClient(httpClient *http.Client, key string, pageSize int) *Client {
+	if pageSize > 100 {
+		pageSize = 100
+	}
+
+	return &Client{httpClient, key, pageSize}
 }
