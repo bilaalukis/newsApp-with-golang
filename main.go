@@ -24,6 +24,25 @@ type Search struct {
 	Results		*news.Results
 }
 
+// Determines if the last page of the search results have been reached
+func (s *Search) IsLastPage() bool {
+	return s.NextPage >= s.TotalPages
+}
+
+// Sets the current pahe
+func (s *Search) CurrentPage() int {
+	if s.NextPage == 1 {
+		return s.NextPage
+	}
+	return s.NextPage - 1
+}
+
+// Gets the previous page
+func (s *Search) PreviousPage() int {
+	return s.CurrentPage() - 1
+}
+
+
 // w represents the "res" and r is "req"
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	buf := &bytes.Buffer{}
@@ -70,6 +89,10 @@ func searchHandler(newsapi *news.Client) http.HandlerFunc {
 			NextPage: nextPage,
 			TotalPages: int(math.Ceil(float64(results.TotalResults) / float64(newsapi.PageSize))),
 			Results: results,
+		}
+
+		if ok := !search.IsLastPage(); ok {
+			search.NextPage++
 		}
 
 		buf := &bytes.Buffer{}

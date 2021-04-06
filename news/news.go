@@ -24,6 +24,12 @@ type Article struct {
 	Content     string    `json:"content"`
 }
 
+// FormatPublishedDate 
+func (a *Article) FormatPublishedDate() string {
+	year, month, day := a.Publishedat.Date()
+	return fmt.Sprintf("%v %d, %d", month, day, year)  // Returns date formatted as month(string), day(integer) and year(integer)
+}
+
 // Results Struct for data received from the news api get request
 type Results struct {
 	Status		string		`json:"status"`
@@ -71,7 +77,7 @@ func (c *Client) FetchEverything(query, page string) (*Results, error) {
 	return result, json.Unmarshal(body, result)
 }
 
-// NewClient: Creates and returns a new Client
+// NewClient Creates and returns a new Client
 func NewClient(httpClient *http.Client, key string, pageSize int) *Client {
 	if pageSize > 100 {
 		pageSize = 100
