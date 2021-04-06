@@ -12,6 +12,7 @@ html {
 
 :root {
   --light-sunray: #f4b860;
+  --blanched-almond: #fbe6c6;
   --gainsboro: #dcdce5;
   --dark-grey: #777;
   --light-grey: #dadce0;
@@ -33,8 +34,7 @@ a:hover {
 }
 
 a.button {
-  border: 2px solid #004400;
-  color: var(--gainsboro);
+  background-color: var(--light-sunray);
   border-radius: 4px;
   padding: 6px 24px;
   font-size: 14px;
@@ -43,8 +43,7 @@ a.button {
 
 a.button:hover {
   text-decoration: none;
-  background-color: var(--gainsboro);
-  color: var(--light-sunray);
+  background-color: var(--blanched-almond);
 }
 
 header {
@@ -70,7 +69,7 @@ form {
 }
 
 .search-input {
-  width: 500px;
+  width: 200px;
   height: 100%;
   border-radius: 4px;
   border-color: transparent;
@@ -83,8 +82,7 @@ form {
 
 .container {
   width: 100%;
-  max-width: 720px;
-  margin: 0 auto;
+  margin: 10px;
   padding: 80px 20px 40px;
 }
 
@@ -96,20 +94,27 @@ form {
 
 .search-results {
   list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
 }
 
 .news-article {
+  width: 600px;
+  height: 290px;
   display: flex;
   align-items: flex-start;
   margin-bottom: 30px;
   border: 1px solid var(--light-grey);
   padding: 15px;
   border-radius: 4px;
+  background-color: antiquewhite;
   justify-content: space-between;
 }
 
 .article-image {
   width: 200px;
+  max-height: 98%;
   flex-grow: 0;
   flex-shrink: 0;
   margin-left: 20px;
@@ -117,9 +122,16 @@ form {
 
 .title {
   margin-bottom: 15px;
+  max-height: 70px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .description {
+  width: 300px;
+  height: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: var(--dark-grey);
   margin-bottom: 15px;
 }
@@ -158,10 +170,6 @@ form {
   form,
   .search-input {
     width: 100%;
-  }
-
-  .github-button {
-    display: none;
   }
 
   .title {

@@ -44,6 +44,37 @@ type Client struct {
 	PageSize int  		//Max number of results to return per page
 }
 
+func (c *Client) FetchTopHeadlines(page string) (*Results, error) {
+	endpoint := fmt.Sprintf(
+		"https://newsapi.org/v2/top-headlines?country=jp&pageSize=%d&page=%s&apiKey=%s&sortBy=publishedAt&language=jp",
+		c.PageSize, 
+		page, 
+		c.key,
+	)
+
+	res, err := c.http.Get(endpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	defer res.Body.Close()
+
+	// Converts to byte slice 
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	// If response from News API is not ok, throw error
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf(string(body))
+	}
+
+	// If all is well, decode into Result struct using json.Unmarshall
+	result := &Results{}
+	return result, json.Unmarshal(body, result)
+}
+
 
 func (c *Client) FetchEverything(query, page string) (*Results, error) {
 	endpoint := fmt.Sprintf(

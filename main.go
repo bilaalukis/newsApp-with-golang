@@ -44,16 +44,55 @@ func (s *Search) PreviousPage() int {
 
 
 // w represents the "res" and r is "req"
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	buf := &bytes.Buffer{}
-	err := tpl.Execute(buf, nil)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return 
-	}
+func indexHandler(newsapi *news.Client) http.HandlerFunc {
+	return func (w http.ResponseWriter, r *http.Request) {
+		u, err := url.Parse(r.URL.String())
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+	
+		params := u.Query()
+		searchQuery := params.Get("q")
+		page := params.Get("page")  // Page through results
+		if page == "" {
+			page = "1"
+		}
+	
+		results, err := newsapi.FetchTopHeadlines(page)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return 
+		}
 
-	buf.WriteTo(w)
+		nextPage, err := strconv.Atoi(page)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		search := &Search {
+			Query: 		searchQuery,
+			NextPage: nextPage,
+			TotalPages: int(math.Ceil(float64(results.TotalResults) / float64(newsapi.PageSize))),
+			Results: results,
+		}
+
+		if ok := !search.IsLastPage(); ok {
+			search.NextPage++
+		}
+
+		buf := &bytes.Buffer{}
+		err = tpl.Execute(buf, search)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		buf.WriteTo(w)
+	}
 }
+
 
 // function to deal with users' searches
 func searchHandler(newsapi *news.Client) http.HandlerFunc {
@@ -131,7 +170,7 @@ func main() {
 	mux := http.NewServeMux()  // http request multiplexer (need to read up on it more)
 	mux.Handle("/assets/", http.StripPrefix("/assets/", fs))  // StripPrefix strips off the specified prefix
 	mux.HandleFunc("/search", searchHandler(newsapi))
-	mux.HandleFunc("/", indexHandler)
+	mux.HandleFunc("/", indexHandler(newsapi))
 	http.ListenAndServe(":"+port, mux)  // starts the server on port
 }
 
