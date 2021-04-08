@@ -1,1 +1,1 @@
-web: newsApp-with-golang
+web: newsApp-with-golang.git
