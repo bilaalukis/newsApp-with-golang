@@ -1,1 +1,1 @@
-web: bin/newsApp-with-golang
+web: newsApp-with-golang
