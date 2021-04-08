@@ -29,7 +29,7 @@ func (s *Search) IsLastPage() bool {
 	return s.NextPage >= s.TotalPages
 }
 
-// Sets the current pahe
+// Sets the current page
 func (s *Search) CurrentPage() int {
 	if s.NextPage == 1 {
 		return s.NextPage

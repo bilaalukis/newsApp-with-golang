@@ -62,6 +62,9 @@ header {
 
 .logo {
   color: #002200;
+  display: flex;
+  justify-items: center;
+  align-items: center;
 }
 
 form {
